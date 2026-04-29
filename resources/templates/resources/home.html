@@ -16,7 +16,7 @@
         </p>
     </div>
     <a class="btn home-hero__cta" href="{% url 'resources:about' %}">Learn more about College Hub</a>
-    {% if user.is_authenticated and user.role == "admin" %}
+    {% if user.is_authenticated and user.is_staff %}
         <a class="btn" href="/admin/" style="margin-left: 8px;">Admin Dashboard</a>
     {% endif %}
 </section>
