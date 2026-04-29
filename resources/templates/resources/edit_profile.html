@@ -1,0 +1,24 @@
+{% extends "resources/base.html" %}
+
+{% block title %}Edit Profile | College Hub{% endblock %}
+
+{% block content %}
+<h1>Edit My Profile</h1>
+<p class="muted">Update your course, avatar, and bio.</p>
+
+{% if user.avatar %}
+    <p class="muted">Current avatar</p>
+    <div style="margin-bottom: 10px;">
+        <img src="{{ user.avatar.url }}" alt=""
+             style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 1px solid #8b66ad; display: block; background: #2c1d42;"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+        <span style="display: none; width: 72px; height: 72px; border-radius: 50%; border: 1px solid #8b66ad; align-items: center; justify-content: center; font-weight: 700; color: #f9d8b5; background: #2c1d42;">{{ user.username|first|upper }}</span>
+    </div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save profile</button>
+</form>
+{% endblock %}

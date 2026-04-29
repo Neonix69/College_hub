@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CollegeHub</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>CollegeHub</h1>
+        <p class="subtitle">Centralized Academic Resources</p>
+        <a class="download-btn" href="/upload/">Upload Resource</a>
+<br><br>
+
+        <div class="resource-list">
+            {% for resource in resources %}
+                <div class="card">
+                    <h3>{{ resource.title }}</h3>
+                    <p>{{ resource.description }}</p>
+                    <a class="download-btn" href="{{ resource.file.url }}">Download</a>
+                </div>
+            {% empty %}
+                <p class="empty">No resources uploaded yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

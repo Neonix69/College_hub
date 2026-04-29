@@ -1,0 +1,24 @@
+{% extends "resources/base.html" %}
+
+{% block title %}{{ course.code }} | Syllabus Years{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="chip">{{ course.code }}</div>
+    <h1 style="margin-top: 10px;">{{ course.name }}</h1>
+    <p class="muted">Choose the syllabus year (based on your batch / regulation).</p>
+</div>
+
+{% if years %}
+    <div class="grid grid--3">
+        {% for year in years %}
+            <div class="card card--hover">
+                <h3 style="margin: 0 0 10px 0;">{{ year.label|default:year.year_number }}</h3>
+                <a class="btn btn--small" href="{% url 'resources:year_detail' year.id %}">Open</a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No years created for this course yet.</p>
+{% endif %}
+{% endblock %}

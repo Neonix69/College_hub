@@ -1,0 +1,25 @@
+{% extends "resources/base.html" %}
+
+{% block title %}Semester {{ semester.number }} | Subjects{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="chip">{{ semester.course_year }}</div>
+    <h1 style="margin-top: 10px;">Semester {{ semester.number }}</h1>
+    <p class="muted" style="margin-bottom:0;">Choose subject</p>
+</div>
+
+{% if subjects %}
+    <div class="grid grid--3">
+        {% for subject in subjects %}
+            <div class="card card--hover">
+                <a href="{% url 'resources:subject_detail' semester.course_year.id semester.id subject.id %}">
+                    {% if subject.code %}<strong>{{ subject.code }}</strong> - {% endif %}{{ subject.name }}
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No subjects available in this semester.</p>
+{% endif %}
+{% endblock %}

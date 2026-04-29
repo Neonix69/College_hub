@@ -1,0 +1,47 @@
+{% extends "resources/base.html" %}
+
+{% block title %}About | College Hub{% endblock %}
+
+{% block content %}
+<div class="hero">
+<h1>About College Hub</h1>
+<p class="muted">
+    College Hub is a platform exclusively for Karunya students. It helps seniors share academic resources and helps juniors access them in a structured way.
+</p>
+</div>
+
+<div class="card">
+    <strong>What you can do here</strong>
+    <div class="meta">
+        Browse materials using a clean path: Course -> Course Year -> Semester -> Subject -> Exam Type.
+        Upload internal exam papers, semester papers, notes, and other useful files for your juniors.
+    </div>
+</div>
+
+<div class="card">
+    <strong>Goal</strong>
+    <div class="meta">
+        Build a student-driven academic repository where every batch contributes and every next batch benefits.
+    </div>
+</div>
+
+<ul>
+    <li class="card">Courses: {{ stats.courses }}</li>
+    <li class="card">Course Years: {{ stats.years }}</li>
+    <li class="card">Subjects: {{ stats.subjects }}</li>
+    <li class="card">Resources: {{ stats.resources }}</li>
+</ul>
+
+<h2>Most Downloaded</h2>
+{% if top_resources %}
+    <ul>
+        {% for item in top_resources %}
+            <li class="card">
+                {{ item.title }} - {{ item.download_count }} downloads
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="muted">No downloaded resources yet.</p>
+{% endif %}
+{% endblock %}

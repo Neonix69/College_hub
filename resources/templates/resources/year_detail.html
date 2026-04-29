@@ -1,0 +1,24 @@
+{% extends "resources/base.html" %}
+
+{% block title %}{{ course_year }} | Semesters{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1 style="margin-bottom: 6px;">{{ course_year }}</h1>
+    <p class="muted" style="margin-bottom:0;">Choose semester (syllabus pattern for this year)</p>
+</div>
+
+{% if semesters %}
+    <div class="grid grid--4">
+        {% for semester in semesters %}
+            <div class="card card--hover">
+                <a href="{% url 'resources:semester_detail' course_year.id semester.id %}">
+                    Semester {{ semester.number }}
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No semesters found for this year.</p>
+{% endif %}
+{% endblock %}

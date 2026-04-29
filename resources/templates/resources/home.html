@@ -1,0 +1,142 @@
+{% extends "resources/base.html" %}
+
+{% block title %}Courses | College Hub{% endblock %}
+
+{% block content %}
+<section class="home-hero">
+    <div class="home-hero__pill">Karunya Student Resource Platform</div>
+    <h1>Welcome to College Hub</h1>
+    <p class="home-hero__lead">
+        Upload, discover, and reuse quality study materials across batches.
+    </p>
+    <div class="home-hero__why">
+        <strong>Why this platform?</strong>
+        <p>
+            Seniors share notes, internals, and semester papers. Juniors quickly find trusted materials by course, year, semester, and subject.
+        </p>
+    </div>
+    <a class="btn home-hero__cta" href="{% url 'resources:about' %}">Learn more about College Hub</a>
+    {% if user.is_authenticated and user.role == "admin" %}
+        <a class="btn" href="/admin/" style="margin-left: 8px;">Admin Dashboard</a>
+    {% endif %}
+</section>
+
+<style>
+    .home-hero {
+        margin-bottom: 18px;
+        padding: 18px 20px;
+        border-radius: 12px;
+        border: 1px solid #7c4d8c;
+        background:
+            linear-gradient(135deg, rgba(111, 53, 125, 0.32), rgba(52, 29, 79, 0.56)),
+            linear-gradient(180deg, rgba(35, 21, 54, 0.92), rgba(26, 16, 42, 0.95));
+    }
+    .home-hero__pill {
+        display: inline-block;
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #f9d8b5;
+        border: 1px solid #9463a3;
+        border-radius: 999px;
+        padding: 2px 10px;
+        margin-bottom: 8px;
+    }
+    .home-hero h1 {
+        margin-bottom: 8px;
+    }
+    .home-hero__lead {
+        margin: 0 0 12px 0;
+        color: #e2d4f8;
+        max-width: 680px;
+    }
+    .home-hero__why {
+        border-left: 3px solid #ff9b85;
+        padding-left: 12px;
+        margin-bottom: 12px;
+    }
+    .home-hero__why p {
+        margin: 6px 0 0 0;
+        color: #d5c1ed;
+    }
+    .home-hero__cta {
+        background: linear-gradient(180deg, #8b4d72, #764061);
+    }
+</style>
+
+{% if user.is_authenticated %}
+    <div class="section-head">
+        <h2>Your Course</h2>
+        <span class="chip">Quick access</span>
+    </div>
+    {% if user_course %}
+        <div class="card card--hover">
+            <div class="meta">{{ user_course.description|default:"" }}</div>
+            <h3 style="margin: 6px 0 10px 0;">
+                <a href="{% url 'resources:course_detail' user_course.id %}">
+                    {{ user_course.name }}
+                </a>
+            </h3>
+            <a class="btn btn--small" href="{% url 'resources:course_detail' user_course.id %}">Open</a>
+            <a class="btn btn--small btn--ghost" href="{% url 'resources:edit_profile' %}" style="margin-left: 8px;">Change</a>
+        </div>
+    {% else %}
+        <p class="muted">No course selected in your profile yet.</p>
+    {% endif %}
+{% endif %}
+
+<div class="section-head">
+    <h2>All Courses</h2>
+    <a class="btn btn--small btn--ghost" href="{% url 'resources:global_search' %}">Search materials</a>
+</div>
+<p class="muted">Browse by school, then pick your syllabus year and semester.</p>
+
+{% if courses_by_school %}
+    {% for school, items in courses_by_school %}
+        <div class="section-head">
+            <h3 style="margin: 0;">{{ school }}</h3>
+            <span class="chip">{{ items|length }} course{{ items|length|pluralize }}</span>
+        </div>
+        <div class="grid grid--3" style="margin-top: 10px; margin-bottom: 14px;">
+            {% for course in items %}
+                <div class="card card--hover">
+                    <div class="meta">{{ course.code }}</div>
+                    <h3 style="margin: 6px 0 10px 0;">
+                        <a href="{% url 'resources:course_detail' course.id %}">{{ course.name }}</a>
+                    </h3>
+                    <div style="display:flex; gap:8px; flex-wrap: wrap; margin-bottom: 10px;">
+                        <span class="chip">Uploads {{ course.uploads_count }}</span>
+                        <span class="chip">Downloads {{ course.downloads_total }}</span>
+                    </div>
+                    <a class="btn btn--small" href="{% url 'resources:course_detail' course.id %}">Browse</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No courses available yet.</p>
+{% endif %}
+
+<div class="section-head">
+    <h2>Top Downloaded Materials</h2>
+    <span class="chip">Trending</span>
+</div>
+<p class="muted">Most reused resources across subjects.</p>
+{% if top_resources %}
+    <div class="grid grid--2" style="margin-top: 10px;">
+        {% for item in top_resources %}
+            <div class="card card--hover">
+                <div class="meta">{{ item.subject.semester.course_year.course.code }} • {{ item.subject.name }}</div>
+                <h3 style="margin: 6px 0 10px 0;">
+                    <a href="{% url 'resources:download_resource' item.subject.semester.course_year.id item.subject.semester.id item.subject.id item.id %}">
+                        {{ item.title }}
+                    </a>
+                </h3>
+                <span class="chip">Downloads {{ item.download_count }}</span>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="muted">No downloads yet.</p>
+{% endif %}
+{% endblock %}

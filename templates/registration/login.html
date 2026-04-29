@@ -1,0 +1,62 @@
+{% extends "resources/base.html" %}
+
+{% block title %}Login | College Hub{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="hero">
+        <h1 style="margin-bottom: 6px;">Welcome back</h1>
+        <p class="muted" style="margin-bottom:0;">Sign in to upload and manage study materials.</p>
+    </div>
+
+    <div class="auth-grid">
+        <div class="card">
+            {% if form.non_field_errors or form.errors %}
+                <div class="form-errors">
+                    {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+                    {% if form.errors and not form.non_field_errors %}
+                        <div class="muted">Invalid username or password. Please try again.</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}{{ form.username.errors }}{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}{{ form.password.errors }}{% endif %}
+                </div>
+
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <button type="submit">Login</button>
+                <a class="btn btn--ghost btn--small" href="{% url 'resources:signup' %}" style="margin-left: 10px;">Create account</a>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">Tips</h3>
+            <div class="meta">
+                <div style="margin-bottom:10px;">
+                    <span class="chip">Upload access</span>
+                    <div class="help">Only logged-in students can upload materials.</div>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <span class="chip">Profile</span>
+                    <div class="help">Add your course and avatar to appear in uploads.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

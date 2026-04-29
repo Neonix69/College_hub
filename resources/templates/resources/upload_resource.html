@@ -1,0 +1,14 @@
+{% extends "resources/base.html" %}
+
+{% block title %}Upload Material | {{ subject.name }}{% endblock %}
+
+{% block content %}
+<h1>Upload Material</h1>
+<p class="muted">{{ subject.semester.course_year }} / Semester {{ subject.semester.number }} / {{ subject.name }}</p>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+</form>
+{% endblock %}

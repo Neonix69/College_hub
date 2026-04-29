@@ -1,0 +1,112 @@
+{% extends "resources/base.html" %}
+
+{% block title %}Register | College Hub{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="hero">
+        <h1 style="margin-bottom: 6px;">Create your account</h1>
+        <p class="muted" style="margin-bottom:0;">Join College Hub to upload, organize, and share study materials with juniors.</p>
+    </div>
+
+    <div class="auth-grid">
+        <div class="card">
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}{{ form.username.errors }}{% endif %}
+                    {% if form.username.help_text %}<div class="help">{{ form.username.help_text|safe }}</div>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.email.id_for_label }}">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}{{ form.email.errors }}{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}{{ form.password1.errors }}{% endif %}
+                    {% if form.password1.help_text %}<div class="help">{{ form.password1.help_text|safe }}</div>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}{{ form.password2.errors }}{% endif %}
+                    {% if form.password2.help_text %}<div class="help">{{ form.password2.help_text|safe }}</div>{% endif %}
+                </div>
+
+                {% if form.course %}
+                    <div class="field">
+                        <label for="{{ form.course.id_for_label }}">Course</label>
+                        {{ form.course }}
+                        {% if form.course.errors %}{{ form.course.errors }}{% endif %}
+                    </div>
+                {% endif %}
+
+                {% if form.enrollment_year %}
+                    <div class="field">
+                        <label for="{{ form.enrollment_year.id_for_label }}">Enrollment year</label>
+                        {{ form.enrollment_year }}
+                        {% if form.enrollment_year.errors %}{{ form.enrollment_year.errors }}{% endif %}
+                        {% if form.enrollment_year.help_text %}<div class="help">{{ form.enrollment_year.help_text|safe }}</div>{% endif %}
+                    </div>
+                {% endif %}
+
+                {% if form.about_me %}
+                    <div class="field">
+                        <label for="{{ form.about_me.id_for_label }}">Bio (optional)</label>
+                        {{ form.about_me }}
+                        {% if form.about_me.errors %}{{ form.about_me.errors }}{% endif %}
+                        <div class="help">A short line about you (club, interests, etc.).</div>
+                    </div>
+                {% endif %}
+
+                {% if form.avatar %}
+                    <div class="field">
+                        <label for="{{ form.avatar.id_for_label }}">Avatar (optional)</label>
+                        {{ form.avatar }}
+                        {% if form.avatar.errors %}{{ form.avatar.errors }}{% endif %}
+                        <div class="help">Add a profile photo so classmates recognize you.</div>
+                    </div>
+                {% endif %}
+
+                <button type="submit">Create account</button>
+                <a class="btn btn--ghost btn--small" href="{% url 'login' %}" style="margin-left: 10px;">I already have an account</a>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">What you get</h3>
+            <div class="meta">
+                <div style="margin-bottom: 10px;">
+                    <span class="chip">Structured browsing</span>
+                    <div class="help">Course → Syllabus year → Semester → Subject → Exam type</div>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <span class="chip">Fast search</span>
+                    <div class="help">Filter by course, semester, type, and year.</div>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <span class="chip">Community sharing</span>
+                    <div class="help">Every batch contributes, every next batch benefits.</div>
+                </div>
+            </div>
+            <p class="help" style="margin-top: 12px;">
+                By creating an account, you agree to upload only materials you’re allowed to share.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,388 @@
+{% extends "resources/base.html" %}
+
+{% block title %}{{ subject.name }} | Materials{% endblock %}
+
+{% block content %}
+<style>
+    .subject-hero__top {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+    .subject-hero__title {
+        margin: 6px 0 6px 0;
+    }
+    .subject-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 12px;
+    }
+
+    .filters-card {
+        margin-top: 14px;
+    }
+    .filters-grid {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr 0.9fr 1fr auto;
+        gap: 10px;
+        align-items: end;
+    }
+    @media (max-width: 900px) {
+        .filters-grid { grid-template-columns: 1fr 1fr; }
+        .filters-grid button { width: 100%; }
+    }
+
+    .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+    @media (max-width: 1050px) { .resource-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 820px) { .resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 620px) { .resource-grid { grid-template-columns: 1fr; } }
+
+    .resource-item {
+        border: 1px solid #6b4a8a;
+        border-radius: 12px;
+        padding: 12px;
+        background: linear-gradient(180deg, rgba(49, 32, 74, 0.92), rgba(36, 23, 54, 0.92));
+        transition: transform 140ms ease, border-color 140ms ease;
+    }
+    .resource-item:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 176, 103, 0.35);
+    }
+    .resource-thumb {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border-radius: 12px;
+        border: 1px solid rgba(107, 74, 138, 0.85);
+        margin-bottom: 10px;
+        overflow: hidden;
+        background: linear-gradient(180deg, #2c1d42, #1c132c);
+        position: relative;
+    }
+    .resource-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .resource-thumb__placeholder {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #e7d7fa;
+        gap: 4px;
+    }
+    .resource-thumb__icon {
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+    .resource-thumb__label {
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #cdb5e7;
+    }
+    .resource-title {
+        display: inline-block;
+        margin-bottom: 4px;
+        font-weight: 700;
+        line-height: 1.25;
+    }
+    .resource-kv {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+    }
+    .resource-kv .chip { background: rgba(36, 23, 58, 0.75); }
+    .resource-meta-line {
+        margin-top: 2px;
+    }
+    .uploader-link {
+        color: #ffd2a5;
+        text-decoration: underline;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        padding: 0;
+        font: inherit;
+    }
+    .profile-modal {
+        width: min(420px, 90vw);
+        border: 1px solid #6b4a8a;
+        border-radius: 12px;
+        background: #1f1430;
+        color: #f4ebff;
+        padding: 0;
+    }
+    .profile-modal::backdrop {
+        background: rgba(6, 3, 11, 0.65);
+    }
+    .profile-modal__body {
+        padding: 14px;
+    }
+    .profile-modal__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .profile-modal__close {
+        width: auto;
+        max-width: none;
+    }
+    .profile-avatar-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .profile-avatar-wrap {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        flex-shrink: 0;
+    }
+    .profile-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 1px solid #8061a5;
+        object-fit: cover;
+        background: #2c1d42;
+        display: block;
+    }
+    .profile-avatar--hidden {
+        display: none !important;
+    }
+    .profile-avatar-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 1px solid #8061a5;
+        color: #f9d8b5;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: #2c1d42;
+    }
+</style>
+
+<div class="hero">
+    <div class="subject-hero__top">
+        <span class="chip">{{ subject.semester.course_year.course.code }}</span>
+        <span class="chip">{{ subject.semester.course_year.year_number }}</span>
+        <span class="chip">Sem {{ subject.semester.number }}</span>
+        {% if subject.code %}<span class="chip">{{ subject.code }}</span>{% endif %}
+    </div>
+    <h1 class="subject-hero__title">{{ subject.name }}</h1>
+    <p class="muted" style="margin-bottom: 0;">{{ resource_count }} material{{ resource_count|pluralize }} found</p>
+
+    <div class="subject-actions">
+        <a class="btn btn--small" href="{% url 'resources:upload_resource' subject.semester.course_year.id subject.semester.id subject.id %}">
+            Upload new material
+        </a>
+        <a class="btn btn--small btn--ghost" href="{% url 'resources:semester_detail' subject.semester.course_year.id subject.semester.id %}">
+            Back to subjects
+        </a>
+    </div>
+
+    <div class="card filters-card">
+        <form method="get" style="margin:0;">
+            <div class="filters-grid">
+                <div>
+                    <div class="meta" style="margin-bottom: 6px;">Search</div>
+                    <input type="text" name="q" value="{{ query }}" placeholder="Search by title">
+                </div>
+                <div>
+                    <div class="meta" style="margin-bottom: 6px;">Type</div>
+                    <select name="type">
+                        <option value="">All Types</option>
+                        <option value="internal_exam" {% if selected_type == "internal_exam" %}selected{% endif %}>Internal Exam</option>
+                        <option value="semester_exam" {% if selected_type == "semester_exam" %}selected{% endif %}>Semester Exam</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="meta" style="margin-bottom: 6px;">Exam year</div>
+                    <input type="number" name="year" value="{{ selected_year }}" placeholder="e.g. 2026">
+                </div>
+                <div>
+                    <div class="meta" style="margin-bottom: 6px;">Sort</div>
+                    <select name="sort">
+                        <option value="latest" {% if sort == "latest" %}selected{% endif %}>Latest</option>
+                        <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest</option>
+                        <option value="most_downloaded" {% if sort == "most_downloaded" %}selected{% endif %}>Most Downloaded</option>
+                    </select>
+                </div>
+                <button type="submit">Apply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% for section in resource_sections %}
+    <div class="section-head">
+        <h2 style="margin:0;">{{ section.label }}</h2>
+        <span class="chip">{{ section.items|length }} item{{ section.items|length|pluralize }}</span>
+    </div>
+    {% if section.items %}
+        <div class="resource-grid">
+            {% for item in section.items %}
+                <article class="resource-item">
+                    <a class="resource-thumb" href="{% url 'resources:download_resource' subject.semester.course_year.id subject.semester.id subject.id item.id %}">
+                        {% if ".jpg" in item.file.name|lower or ".jpeg" in item.file.name|lower or ".png" in item.file.name|lower or ".webp" in item.file.name|lower or ".gif" in item.file.name|lower %}
+                            <img src="{{ item.file.url }}" alt="{{ item.title }}">
+                        {% elif ".pdf" in item.file.name|lower %}
+                            <div class="resource-thumb__placeholder">
+                                <div class="resource-thumb__icon">[PDF]</div>
+                                <div class="resource-thumb__label">Preview</div>
+                            </div>
+                        {% elif ".doc" in item.file.name|lower or ".docx" in item.file.name|lower %}
+                            <div class="resource-thumb__placeholder">
+                                <div class="resource-thumb__icon">[DOC]</div>
+                                <div class="resource-thumb__label">Document</div>
+                            </div>
+                        {% else %}
+                            <div class="resource-thumb__placeholder">
+                                <div class="resource-thumb__icon">[FILE]</div>
+                                <div class="resource-thumb__label">Material</div>
+                            </div>
+                        {% endif %}
+                    </a>
+                    <a class="resource-title" href="{% url 'resources:download_resource' subject.semester.course_year.id subject.semester.id subject.id item.id %}">
+                        {{ item.title }}
+                    </a>
+                    <div class="resource-kv">
+                        {% if item.exam_label %}<span class="chip">{{ item.exam_label }}</span>{% endif %}
+                        {% if item.year %}<span class="chip">{{ item.year }}</span>{% endif %}
+                        <span class="chip">Downloads {{ item.download_count }}</span>
+                    </div>
+                    <div class="meta" style="margin-top: 8px;">
+                        Uploaded {{ item.uploaded_at|date:"M d, Y" }}
+                    </div>
+                    <div class="meta resource-meta-line">
+                        Uploaded by
+                        {% if item.uploaded_by %}
+                            <button
+                                type="button"
+                                class="uploader-link"
+                                data-profile-username="{{ item.uploaded_by.username }}"
+                                data-profile-course="{% if item.uploaded_by.course %}{{ item.uploaded_by.course.code }} - {{ item.uploaded_by.course.name }}{% else %}Not set{% endif %}"
+                                data-profile-enrollment="{% if item.uploaded_by.enrollment_year %}{{ item.uploaded_by.enrollment_year }}{% else %}Not set{% endif %}"
+                                data-profile-about="{{ item.uploaded_by.about_me|default_if_none:'' }}"
+                                data-profile-avatar="{% if item.uploaded_by.avatar %}{{ item.uploaded_by.avatar.url }}{% endif %}"
+                                data-profile-initial="{{ item.uploaded_by.username|default:''|slice:':1'|upper }}"
+                            >
+                                {{ item.uploaded_by.username }}
+                            </button>
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </div>
+                    {% if item.notes %}
+                        <div class="meta">{{ item.notes }}</div>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card">
+            <p style="margin:0;"><strong>No uploads yet</strong></p>
+            <p class="muted" style="margin:6px 0 0 0;">
+                Be the first to upload a {{ section.label|lower }} material for this subject.
+            </p>
+        </div>
+    {% endif %}
+{% endfor %}
+
+<dialog id="profileModal" class="profile-modal">
+    <div class="profile-modal__body">
+        <div class="profile-modal__header">
+            <h3 id="profileName" style="margin:0;">Profile</h3>
+            <button type="button" id="closeProfileModal" class="profile-modal__close">Close</button>
+        </div>
+        <div class="profile-avatar-row">
+            <div class="profile-avatar-wrap">
+                <img id="profileAvatarImg" class="profile-avatar profile-avatar--hidden" alt="">
+                <span id="profileAvatarFallback" class="profile-avatar-fallback" aria-hidden="true">?</span>
+            </div>
+        </div>
+        <div class="meta"><strong>Course:</strong> <span id="profileCourse"></span></div>
+        <div class="meta"><strong>Enrollment year:</strong> <span id="profileEnrollment"></span></div>
+        <p id="profileAbout" class="meta" style="margin-top: 8px;"></p>
+    </div>
+</dialog>
+
+<script>
+    (function () {
+        const modal = document.getElementById("profileModal");
+        const profileName = document.getElementById("profileName");
+        const profileCourse = document.getElementById("profileCourse");
+        const profileEnrollment = document.getElementById("profileEnrollment");
+        const profileAbout = document.getElementById("profileAbout");
+        const profileAvatarImg = document.getElementById("profileAvatarImg");
+        const profileAvatarFallback = document.getElementById("profileAvatarFallback");
+        const closeBtn = document.getElementById("closeProfileModal");
+
+        function openProfile(button) {
+            profileName.textContent = button.dataset.profileUsername || "Profile";
+            profileCourse.textContent = button.dataset.profileCourse || "Not set";
+            profileEnrollment.textContent = button.dataset.profileEnrollment || "Not set";
+            profileAbout.textContent = button.dataset.profileAbout || "No bio added.";
+
+            const initial = (button.dataset.profileInitial || "?").trim().slice(0, 1) || "?";
+            profileAvatarFallback.textContent = initial.toUpperCase();
+
+            function showFallback() {
+                profileAvatarImg.classList.add("profile-avatar--hidden");
+                profileAvatarImg.removeAttribute("src");
+                profileAvatarFallback.classList.remove("profile-avatar--hidden");
+            }
+
+            function showImage(url) {
+                profileAvatarImg.onload = function () {
+                    profileAvatarImg.classList.remove("profile-avatar--hidden");
+                    profileAvatarFallback.classList.add("profile-avatar--hidden");
+                };
+                profileAvatarImg.onerror = function () {
+                    showFallback();
+                };
+                profileAvatarImg.alt = "Profile avatar";
+                profileAvatarImg.src = url;
+                if (profileAvatarImg.complete && profileAvatarImg.naturalHeight > 0) {
+                    profileAvatarImg.onload();
+                }
+            }
+
+            if (button.dataset.profileAvatar) {
+                showImage(button.dataset.profileAvatar);
+            } else {
+                showFallback();
+            }
+            modal.showModal();
+        }
+
+        document.querySelectorAll(".uploader-link").forEach((button) => {
+            button.addEventListener("click", () => openProfile(button));
+        });
+        closeBtn.addEventListener("click", () => modal.close());
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                modal.close();
+            }
+        });
+    })();
+</script>
+{% endblock %}

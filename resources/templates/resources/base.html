@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}College Hub{% endblock %}</title>
+    <style>
+        :root {
+            --bg: #1a1026;
+            --panel: #241736;
+            --panel-soft: #31204a;
+            --text: #f4ebff;
+            --muted: #c0b1d8;
+            --accent: #ffb067;
+            --accent-2: #ff7f8a;
+            --border: #4e356f;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: Segoe UI, Arial, sans-serif;
+            margin: 0;
+            background: radial-gradient(circle at top right, #5c2d62 0%, #34204a 40%, var(--bg) 75%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        header {
+            background: rgba(20, 10, 34, 0.92);
+            color: #fff;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid #6b4b93;
+            z-index: 2;
+        }
+        header a { color: #f5d9c4; text-decoration: none; margin-right: 6px; font-weight: 600; }
+        header a:hover { color: #fff; }
+        .brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-right: 8px;
+            color: #ff9aac;
+            letter-spacing: 0.3px;
+        }
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-avatar-wrap {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+        .header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #8b66ad;
+            object-fit: cover;
+            background: #2c1d42;
+            display: block;
+            vertical-align: middle;
+        }
+        .header-avatar-fallback {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #8b66ad;
+            color: #f9d8b5;
+            font-size: 0.95rem;
+            font-weight: 700;
+            background: #2c1d42;
+        }
+        .header-avatar--hidden {
+            display: none !important;
+        }
+        main {
+            max-width: 1100px;
+            margin: 28px auto;
+            background: linear-gradient(160deg, rgba(42, 26, 62, 0.96), rgba(24, 15, 38, 0.97));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #f1f5ff;
+            line-height: 1.3;
+        }
+        p { margin-top: 0; }
+        ul { padding-left: 20px; }
+        a { color: var(--accent); }
+        a:hover { color: #ffd2a5; }
+        .muted { color: var(--muted); }
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: linear-gradient(180deg, var(--panel-soft), var(--panel));
+        }
+        .meta { font-size: 0.9rem; color: #ccb5e8; }
+        .hero {
+            padding: 24px;
+            border-radius: 14px;
+            background: linear-gradient(120deg, rgba(255, 127, 138, 0.22), rgba(255, 176, 103, 0.18));
+            border: 1px solid #8c5a7f;
+            margin-bottom: 24px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 9px 14px;
+            border-radius: 8px;
+            border: 1px solid #9b6383;
+            color: #fff2e8;
+            background: #7a3f65;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn:hover { background: #91507a; }
+        .btn--ghost {
+            background: transparent;
+            border: 1px solid #8c5a7f;
+            color: #f5d9c4;
+        }
+        .btn--ghost:hover { background: rgba(255, 176, 103, 0.08); }
+        .btn--small { padding: 7px 10px; font-size: 0.92rem; }
+
+        .section-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+        }
+        .section-head p { margin: 0; }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+        }
+        .grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        @media (max-width: 980px) { .grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 820px) { .grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 620px) { .grid--2, .grid--3, .grid--4 { grid-template-columns: 1fr; } }
+
+        .card--hover {
+            transition: transform 140ms ease, border-color 140ms ease;
+        }
+        .card--hover:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 176, 103, 0.35);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid #6b4b93;
+            background: rgba(36, 23, 58, 0.6);
+            color: #f5d9c4;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        .footer {
+            margin-top: 26px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(107, 75, 147, 0.55);
+            color: #c0b1d8;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        form { margin-bottom: 14px; }
+        input, select, button {
+            background: #211633;
+            color: #f2eaff;
+            border: 1px solid #5f427f;
+            border-radius: 8px;
+            padding: 9px 10px;
+        }
+        input, select, textarea { width: 100%; max-width: 420px; }
+        textarea {
+            background: #211633;
+            color: #f2eaff;
+            border: 1px solid #5f427f;
+            border-radius: 8px;
+            padding: 9px 10px;
+        }
+        button { background: #7b4564; cursor: pointer; font-weight: 600; }
+        button:hover { background: #935378; }
+        .inline-form { margin: 0; }
+        .inline-form button { padding: 7px 10px; }
+        .auth-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .auth-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 14px;
+            align-items: start;
+        }
+        @media (max-width: 900px) { .auth-grid { grid-template-columns: 1fr; } }
+        .field { margin-bottom: 12px; }
+        .field label { display: block; font-weight: 700; margin-bottom: 6px; color: #f1f5ff; }
+        .help { font-size: 0.9rem; color: #c0b1d8; margin-top: 6px; }
+        .errorlist { margin: 0 0 10px 0; padding-left: 18px; color: #ffb7c0; }
+        .form-errors {
+            border: 1px solid rgba(255, 127, 138, 0.45);
+            background: rgba(255, 127, 138, 0.08);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .thumb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 18px; }
+        .placeholder-thumb {
+            border: 1px dashed #8060a2;
+            border-radius: 8px;
+            background: #24173a;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ccb6e4;
+            text-align: center;
+            padding: 10px;
+        }
+        .placeholder-icon { font-size: 1.5rem; margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+    <header>
+        <span class="brand">College Hub</span>
+        <a href="{% url 'resources:home' %}">Courses</a>
+        <a href="{% url 'resources:global_search' %}">Search</a>
+        <a href="{% url 'resources:about' %}">About</a>
+        <div class="header-right">
+            {% if user.is_authenticated %}
+                <div class="header-user">
+                    <div class="header-avatar-wrap">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="" class="header-avatar" id="headerAvatarImg"
+                                 onerror="this.classList.add('header-avatar--hidden'); document.getElementById('headerAvatarFallback').classList.remove('header-avatar--hidden');">
+                            <span id="headerAvatarFallback" class="header-avatar-fallback header-avatar--hidden" aria-hidden="true">{{ user.username|first|upper }}</span>
+                        {% else %}
+                            <span class="header-avatar-fallback">{{ user.username|first|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="muted">Hi, {{ user.username }}</span>
+                </div>
+                <a href="{% url 'resources:edit_profile' %}">My Profile</a>
+                <form method="post" action="{% url 'logout' %}" class="inline-form">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'resources:signup' %}">Register</a>
+            {% endif %}
+        </div>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+        <div class="footer">
+            <div>College Hub • Built for Karunya students</div>
+            <div class="muted">Share responsibly. Respect copyrights.</div>
+        </div>
+    </main>
+</body>
+</html>
